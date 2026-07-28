@@ -121,6 +121,26 @@ fu! fzf_mru#mrufiles#remove(files)
   retu s:reformat(mrufs)
 endf
 
+fu! fzf_mru#mrufiles#remove_display(files)
+  if empty(a:files) | retu | en
+  " a:files are *display* paths (as shown by source(), i.e. reformatted).
+  " Map each raw stored entry to its display form to find which raw entries
+  " to drop, so removal works in absolute / relative / store_relative modes.
+  let toremove = []
+  for r in s:mergelists()
+    let disp = s:reformat([r])
+    if !empty(disp) && index(a:files, disp[0], 0, !{s:cseno}) >= 0
+      cal add(toremove, r)
+    en
+  endfo
+  if empty(toremove) | retu | en
+  let cond = 'index(toremove, v:val, 0, !{s:cseno}) < 0'
+  cal filter(s:mrufs, cond)
+  let mrufs = s:mergelists()
+  cal filter(mrufs, cond)
+  cal s:savetofile(mrufs)
+endf
+
 fu! fzf_mru#mrufiles#add(fn)
   if !empty(a:fn)
     cal s:addtomrufs(a:fn)
