@@ -41,6 +41,10 @@ Plugin 'pbogut/fzf-mru.vim'
   them.
 - Set `let g:fzf_mru_no_sort = 1` to prevent `fzf` from sorting list while typing, it will keep list sorted by recency.
 - Set `let g:fzf_mru_exclude_current_file = 0` to include the current file in the list since it's excluded by default.
+- In the `:FZFMru` list you can select entries with `Tab` (multi-select) and press
+  `ctrl-d` to remove them from the MRU list. This only removes the entries from the
+  recent-files list; it does **not** delete the files on disk.
+- Set `let g:fzf_mru_delete_key = 'ctrl-x'` to change the delete binding (default `ctrl-d`).
 
 ## FZF Options/Preview
 You could pass FZF options and/or enable the file preview like this:
