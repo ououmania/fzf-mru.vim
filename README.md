@@ -44,7 +44,7 @@ Plugin 'pbogut/fzf-mru.vim'
 - In the `:FZFMru` list you can select entries with `Tab` (multi-select) and press
   `ctrl-d` to remove them from the MRU list. This only removes the entries from the
   recent-files list; it does **not** delete the files on disk.
-- Set `let g:fzf_mru_delete_key = 'ctrl-x'` to change the delete binding (default `ctrl-d`).
+- Set `let g:fzf_mru_delete_key = 'ctrl-r'` to change the delete binding (default `ctrl-d`). Avoid `ctrl-t`/`ctrl-x`/`ctrl-v`, which fzf uses by default to open in a tab/split/vsplit.
 
 ## FZF Options/Preview
 You could pass FZF options and/or enable the file preview like this:

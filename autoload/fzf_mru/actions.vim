@@ -37,7 +37,7 @@ function! s:inject_opts(options, delkey) abort
     let opts .= ' --multi'
   endif
   if opts =~# '--expect='
-    let opts = substitute(opts, '\(--expect=\S*\)', '\1,' . a:delkey, '')
+    let opts = substitute(opts, '\(--expect=\S*\)', '\1,' . escape(a:delkey, '\&~'), '')
   else
     let opts .= ' --expect=' . a:delkey
   endif
