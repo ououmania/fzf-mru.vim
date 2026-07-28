@@ -21,6 +21,29 @@ function! fzf_mru#actions#options() abort
   return options
 endfunction
 
+function! s:sink(delkey, Original, lines) abort
+  if !empty(a:lines) && a:lines[0] ==# a:delkey
+    if len(a:lines) > 1
+      call fzf_mru#mrufiles#remove_display(a:lines[1:])
+    endif
+    return
+  endif
+  call a:Original(a:lines)
+endfunction
+
+function! s:inject_opts(options, delkey) abort
+  let opts = a:options
+  if opts !~# '--multi\>'
+    let opts .= ' --multi'
+  endif
+  if opts =~# '--expect='
+    let opts = substitute(opts, '\(--expect=\S*\)', '\1,' . a:delkey, '')
+  else
+    let opts .= ' --expect=' . a:delkey
+  endif
+  return opts
+endfunction
+
 function! fzf_mru#actions#mru(...) abort
   let params = fzf_mru#actions#params(get(a:, 001, ''))
   let options = extend(
@@ -33,5 +56,10 @@ function! fzf_mru#actions#mru(...) abort
 
   let extra = extend(copy(get(g:, 'fzf_layout', {'down': '~40%'})), options)
 
-  call fzf#run(fzf#wrap('name', extra, 0))
+  let spec = fzf#wrap('name', extra, 0)
+  let delkey = get(g:, 'fzf_mru_delete_key', 'ctrl-d')
+  let spec.options = s:inject_opts(spec.options, delkey)
+  let l:Original = spec['sink*']
+  let spec['sink*'] = {lines -> s:sink(delkey, l:Original, lines)}
+  call fzf#run(spec)
 endfunction
