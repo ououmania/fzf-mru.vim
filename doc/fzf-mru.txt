@@ -1,0 +1,116 @@
+*fzf-mru.txt*    CtrlP-style Most Recently Used files, powered by fzf
+
+Author:  Pawel Bogut <github.com/pbogut>
+License: MIT
+
+CONTENTS                                            *fzf-mru*
+
+  1. Introduction ............................ |fzf-mru-introduction|
+  2. Commands ............................... |fzf-mru-commands|
+  3. Options ............................... |fzf-mru-options|
+  4. Scoping to a project ................... |fzf-mru-scope|
+
+==============================================================================
+1. Introduction                                      *fzf-mru-introduction*
+
+fzf-mru.vim brings CtrlP's Most Recently Used (MRU) file tracking together with
+fzf's fuzzy finder. It requires fzf (and fzf.vim for the |:FZFMru| command).
+
+The engine records every buffer you open into a single global cache file and
+presents the list through fzf.
+
+==============================================================================
+2. Commands                                          *fzf-mru-commands*
+
+:FZFMru [query-or-opts]                               *:FZFMru*
+  Open the MRU list with fzf. You may pass a search query or any fzf command
+  line options, e.g. >
+    :FZFMru readme
+    :FZFMru --prompt "Sup? " -q "notmuch"
+<
+  In the list, press |Tab| to multi-select and |ctrl-d| (configurable) to
+  remove the selected entries from the MRU list. This only removes them from
+  the recent-files list; it does not delete files on disk.
+
+:FZFFreshMru [query-or-opts]                          *:FZFFreshMru*
+  Rebuild the MRU list from disk and open it (same arguments as |:FZFMru|).
+
+==============================================================================
+3. Options                                            *fzf-mru-options*
+
+All options are global variables, prefixed with |g:fzf_mru_|.
+
+g:fzf_mru_max                                        *g:fzf_mru_max*
+  Maximum number of entries kept in the MRU list. Default: 250.
+
+g:fzf_mru_include                                     *g:fzf_mru_include*
+  A Vim regex; only files matching it are recorded. Default: '' (match all).
+
+g:fzf_mru_exclude                                     *g:fzf_mru_exclude*
+  A Vim regex; files matching it are never recorded. Default: ''.
+
+g:fzf_mru_case_sensitive                              *g:fzf_mru_case_sensitive*
+  Whether include/exclude matching is case sensitive. Default: 1.
+
+g:fzf_mru_relative                                    *g:fzf_mru_relative*
+  When 1, only list files within the current directory (getcwd()). Default: 0.
+
+g:fzf_mru_store_relative_dirs                         *g:fzf_mru_store_relative_dirs*
+  A list of path patterns. When the current directory matches one of them,
+  files are stored as relative paths instead of absolute. Useful when you keep
+  multiple copies of a repository and want a consistent cache between them.
+  Default: [].
+
+g:fzf_mru_save_on_update                              *g:fzf_mru_save_on_update*
+  When 1, persist the cache to disk as it changes. Default: 1.
+
+g:fzf_mru_exclude_current_file                       *g:fzf_mru_exclude_current_file*
+  When 1, the current file is omitted from the list. Default: 1.
+
+g:fzf_mru_no_sort                                     *g:fzf_mru_no_sort*
+  When 1, prevent fzf from sorting the list while typing so it stays ordered by
+  recency. Default: 0.
+
+g:fzf_mru_delete_key                                  *g:fzf_mru_delete_key*
+  Key binding used to delete entries from the list in fzf. Default: 'ctrl-d'.
+  Avoid 'ctrl-t'/'ctrl-x'/'ctrl-v', which fzf uses to open in a tab/split/vsplit.
+
+g:fzf_mru_scope_markers                               *g:fzf_mru_scope_markers*
+  See |fzf-mru-scope|. Default: [] (no scoping).
+
+==============================================================================
+4. Scoping to a project                               *fzf-mru-scope*
+
+By default the MRU list contains files from every project you have ever opened.
+Set |g:fzf_mru_scope_markers| to a list of marker names (files or directories)
+to limit the displayed list to the current project: >
+
+  let g:fzf_mru_scope_markers = ['.git', '.hg', '.svn', '.fzf-mru-scope']
+
+How it works:
+
+  - Starting from the current directory, fzf-mru walks UP the directory tree
+    looking for any of the listed markers.
+  - The first directory that contains a marker becomes the "project root", and
+    only files under it (including sub-directories) are shown.
+  - The walk stops at $HOME or the filesystem root. If no marker is found by
+    then, no scoping is applied and all files are shown.
+  - An empty markers list (the default) disables scoping entirely.
+
+This is deliberately decoupled from any version control system: the markers are
+purely whatever you put in the list. For a project that is NOT under version
+control, drop an empty placeholder file named |.fzf-mru-scope| at its top level
+(clang-tidy style) to mark it as a project root: >
+
+  touch /path/to/myproject/.fzf-mru-scope
+
+Scoping only affects what is DISPLAYED. The global MRU cache file is unchanged,
+so files from other projects remain tracked and will reappear when you scope to
+them (or disable scoping).
+
+The Telescope default mode (:Telescope fzf_mru) is scoped the same way. The
+Telescope `current_path` and `all` modes intentionally ignore scoping, mirroring
+their existing "ignore options" behavior.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

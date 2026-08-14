@@ -6,7 +6,7 @@
 " =============================================================================
 
 " Static variables {{{1
-let [s:mrbs, s:mrufs] = [[], []]
+let [s:mrbs, s:mrufs, s:scroot] = [[], [], '']
 
 fu! fzf_mru#mrufiles#opts()
   let [pref, opts] = ['g:fzf_mru_', {
@@ -17,8 +17,9 @@ fu! fzf_mru#mrufiles#opts()
         \ 'relative': ['s:re', 0],
         \ 'store_relative_dirs': ['s:stre', []],
         \ 'save_on_update': ['s:soup', 1],
-        \ 'exclude_current_file': ['s:excur', 1],
-        \ }]
+      \ 'exclude_current_file': ['s:excur', 1],
+      \ 'scope_markers': ['s:scm', []],
+      \ }]
   for [ke, va] in items(opts)
     let [{va[0]}, {pref.ke}] = [pref.ke, exists(pref.ke) ? {pref.ke} : va[1]]
   endfo
@@ -27,6 +28,30 @@ cal fzf_mru#mrufiles#opts()
 " Utilities {{{1
 fu! s:excl(fn)
   retu !empty({s:ex}) && a:fn =~# {s:ex}
+endf
+
+fu! s:find_scope_root()
+  if empty({s:scm}) | retu '' | en
+  let lash = fzf_mru#utils#lash()
+  let home = exists('$HOME') && !empty($HOME)
+        \ ? substitute(fnamemodify($HOME, ':p'), '[\/]$', '', '') : ''
+  let dir = substitute(getcwd(), '[\/]$', '', '')
+  while 1
+    for m in {s:scm}
+      if isdirectory(dir.lash.m) || filereadable(dir.lash.m)
+        retu dir
+      en
+    endfo
+    if !empty(home) && dir ==# home | break | en
+    let parent = substitute(fnamemodify(dir, ':h'), '[\/]$', '', '')
+    if parent ==# dir | break | en
+    let dir = parent
+  endw
+  retu ''
+endf
+
+fu! s:under_scope(fn)
+  retu stridx(fnamemodify(a:fn, ':p'), s:scroot) == 0
 endf
 
 fu! s:mergelists()
@@ -152,8 +177,14 @@ fu! fzf_mru#mrufiles#raw_list()
 endf
 
 fu! fzf_mru#mrufiles#list(...)
-  retu a:0 ? a:1 == 'raw' ? s:reformat(s:mergelists(), a:1) : 0
-        \ : s:reformat(s:mergelists())
+  let raw = s:mergelists()
+  let s:scroot = s:find_scope_root()
+  if !empty(s:scroot)
+    let s:scroot .= fzf_mru#utils#lash()
+    cal filter(raw, 's:under_scope(v:val)')
+  en
+  retu a:0 ? a:1 == 'raw' ? s:reformat(raw, a:1) : 0
+        \ : s:reformat(raw)
 endf
 
 fu! fzf_mru#mrufiles#bufs()

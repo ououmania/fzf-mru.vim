@@ -33,6 +33,16 @@ Plugin 'pbogut/fzf-mru.vim'
 - For example: `:FZFMru --prompt "Sup? " -q "notmuch"` or `:FZFMru readme`
 - You can also map it to a shortcut with `map <leader>p :FZFMru<cr>`.
 - Set `let g:fzf_mru_relative = 1` to only list files within current directory.
+- Set `let g:fzf_mru_scope_markers = ['.git']` to scope the MRU list to the
+  current *project*. fzf-mru walks up from the current directory looking for any
+  of the listed marker files/dirs (e.g. `.git`, `.hg`, `.svn`, or a generic
+  placeholder like `.fzf-mru-scope`); the first directory containing a marker
+  becomes the project root, and only files under it (and its subdirs) are shown.
+  The walk stops at `$HOME` or the filesystem root. Leave the list empty (the
+  default) to disable scoping. This is decoupled from any VCS — drop an empty
+  `.fzf-mru-scope` file at a project's top level to mark it as a project root
+  even without version control (clang-tidy style). Scoping only affects what is
+  displayed; the global MRU cache is unchanged.
 - Set `let g:fzf_mru_store_relative_dirs = ['/path/to/code']` to store files as
   relative paths, as opposed to as absolute ones.  FZF-MRU will use the elements
   in this list as patterns to match the path against to see if it qualifies.
