@@ -91,7 +91,7 @@ function! fzf_mru#actions#mru(...) abort
   let extra = extend(copy(get(g:, 'fzf_layout', {'down': '~40%'})), options)
 
   let spec = fzf#wrap('name', extra, 0)
-  let delkey = get(g:, 'fzf_mru_delete_key', 'ctrl-d')
+  let delkey = get(g:, 'fzf_mru_delete_key', 'ctrl-o')
   let spec.options = s:inject_opts(spec.options, delkey)
   let l:Original = spec['sink*']
   let l:Args = a:000

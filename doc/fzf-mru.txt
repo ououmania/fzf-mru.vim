@@ -28,7 +28,7 @@ presents the list through fzf.
     :FZFMru readme
     :FZFMru --prompt "Sup? " -q "notmuch"
 <
-  In the list, press |Tab| to multi-select and |ctrl-d| (configurable) to
+  In the list, press |Tab| to multi-select and |ctrl-o| (configurable) to
   remove the selected entries from the MRU list. This only removes them from
   the recent-files list; it does not delete files on disk.
 
@@ -72,7 +72,7 @@ g:fzf_mru_no_sort                                     *g:fzf_mru_no_sort*
   recency. Default: 0.
 
 g:fzf_mru_delete_key                                  *g:fzf_mru_delete_key*
-  Key binding used to delete entries from the list in fzf. Default: 'ctrl-d'.
+  Key binding used to delete entries from the list in fzf. Default: 'ctrl-o'.
   Avoid 'ctrl-t'/'ctrl-x'/'ctrl-v', which fzf uses to open in a tab/split/vsplit.
 
 g:fzf_mru_scope_markers                               *g:fzf_mru_scope_markers*
